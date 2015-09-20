@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns="http://www.phonebook.com/ServiceRequest"
+           targetNamespace="http://www.phonebook.com/ServiceRequest"
+           elementFormDefault="qualified" 
+           attributeFormDefault="unqualified"> 
+	<xs:element name="ServiceRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<!-- Header contains message metadata -->
+				<xs:element ref="Header" />
+				<!-- Payload contains message content -->
+				<xs:element ref="Payload" />				
+			</xs:sequence>
+		</xs:complexType> 
+	</xs:element>
+	
+	<xs:element name="Header">
+		<xs:complexType>
+			<xs:sequence>
+				<!-- Unique identifier for this specific message -->
+				<xs:element name="MessageID" type="xs:string" />
+				<xs:element name="MessageType">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ListEntries" />
+							<xs:enumeration value="CreateEntry" />
+							<xs:enumeration value="RemoveEntry" />
+							<xs:enumeration value="UpdateEntry" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="Payload">
+		<xs:complexType>
+			<xs:choice>
+				<xs:element ref="ListEntries" />
+				<xs:element ref="CreateEntry" />
+				<xs:element ref="RemoveEntry" />
+				<xs:element ref="UpdateEntry" />
+			</xs:choice>
+		</xs:complexType>	
+	</xs:element>
+	
+	<xs:element name="ListEntries">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="surname" type="xs:string" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>	
+	</xs:element>
+	
+	<xs:element name="CreateEntry">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="surname" />
+				<xs:element ref="firstname" />
+				<xs:element ref="phone" />
+				<xs:element ref="address" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="RemoveEntry">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="id" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="UpdateEntry">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="id" />
+				<xs:element ref="surname" />
+				<xs:element ref="firstname" />
+				<xs:element ref="phone" />
+				<xs:element ref="address" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="id">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:length value="36"/>
+				<xs:pattern value="[0-F]{8}-[0-F]{4}-[0-F]{4}-[0-F]{4}-[0-F]{12}"/>			
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>	
+	<xs:element name="surname" type="xs:string" />
+	<xs:element name="firstname" type="xs:string" />
+	<xs:element name="phone" type="xs:string" />
+	<xs:element name="address" type="xs:string" />  
+</xs:schema>
+
+
+

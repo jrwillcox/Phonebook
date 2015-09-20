@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.phonebook.com/ServiceResponse" 
+	targetNamespace="http://www.phonebook.com/ServiceResponse" 
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+		<xs:element name="ServiceResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Status"/>
+				<xs:element ref="Information" minOccurs="0"/>
+				<xs:element ref="Payload" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- Success or Failure -->
+	<xs:element name="Status">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="Success"/>
+				<xs:enumeration value="Failure"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- Optional information field -->
+	<xs:element name="Information" type="xs:string"/>
+	<!-- Optional XML payload -->
+	<xs:element name="Payload">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ListEntries"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="ListEntries">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="entry" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="entry">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="id" />
+				<xs:element ref="surname" />
+				<xs:element ref="firstname" />
+				<xs:element ref="phone" />
+				<xs:element ref="address" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="id">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:length value="36"/>
+				<xs:pattern value="[0-F]{8}-[0-F]{4}-[0-F]{4}-[0-F]{4}-[0-F]{12}"/>			
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>	
+	<xs:element name="surname" type="xs:string" />
+	<xs:element name="firstname" type="xs:string" />
+	<xs:element name="phone" type="xs:string" />
+	<xs:element name="address" type="xs:string" />  	
+</xs:schema>
