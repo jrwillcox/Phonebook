@@ -43,7 +43,9 @@ namespace Phonebook
                 root.AppendChild(payload);   
             }    
 
-			return xmlDocument.OuterXml;
+            string outputxml = xmlDocument.OuterXml;
+            outputxml = outputxml.Replace(" xmlns=\"\"", "");
+            return outputxml;
 		}
 	}
 }
