@@ -20,7 +20,12 @@ namespace Phonebook
 					while (reader.Peek() >= 0)
 					{
 						string line = reader.ReadLine();
-						PhonebookEntry entry = new PhonebookEntry(line);
+						PhonebookEntry entry = new PhonebookEntry(line, out error);
+						if (error.Length > 0)
+						{
+							error = "At least one entry in phonebook is invalid";
+							return false;
+						}
 						phonebook.AddEntry(entry);
 					}
 				}

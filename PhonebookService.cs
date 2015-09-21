@@ -39,22 +39,16 @@ namespace Phonebook
         	switch (m_MessageType)
         	{
         		case "ListEntries":
-        			response = ListEntries();
-        			break;
+        			return ListEntries();
         		case "CreateEntry":
-        			response = CreateEntry();
-        			break;
+        			return CreateEntry();
         		case "RemoveEntry":
-        			response = RemoveEntry();
-        			break;
+        			return RemoveEntry();
         		case "UpdateEntry":
-        			response = UpdateEntry();
-        			break;
+        			return UpdateEntry();
         		default:
         			return new ServiceResponse(ResponseStatus.Failure, "Message type " + m_MessageType + " not implemented", "");
-        	}
-        	     	
-        	return response;
+        	}  
         }       
 
         private ServiceResponse ValidateXMLAttack(string inputXml)
@@ -163,15 +157,24 @@ namespace Phonebook
 					XmlElement element = payload.CreateElement("id");
 					element.InnerText = entry.Id;						
 					entryXml.AppendChild(element);
-					element = payload.CreateElement("surname");
-					element.InnerText = entry.Surname;
-					entryXml.AppendChild(element);
-					element = payload.CreateElement("firstname");
-					element.InnerText = entry.Firstname;
-					entryXml.AppendChild(element);					
-					element = payload.CreateElement("phone");
-					element.InnerText = entry.Phone;
-					entryXml.AppendChild(element);	
+					if (entry.Surname.Length > 0)
+					{
+						element = payload.CreateElement("surname");
+						element.InnerText = entry.Surname;
+						entryXml.AppendChild(element);
+					}
+					if (entry.Firstname.Length > 0)
+					{
+						element = payload.CreateElement("firstname");
+						element.InnerText = entry.Firstname;
+						entryXml.AppendChild(element);		
+					}
+					if (entry.Phone.Length > 0)
+					{
+						element = payload.CreateElement("phone");
+						element.InnerText = entry.Phone;
+						entryXml.AppendChild(element);	
+					}
 					if (entry.Address.Length > 0)
 					{
 						element = payload.CreateElement("address");
@@ -188,18 +191,21 @@ namespace Phonebook
         
         private ServiceResponse CreateEntry()
         {
-        	string surname, firstname, phone, address = "", error;
+        	string surname = "", firstname = "", phone = "", address = "", error;
         	XmlNode node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:CreateEntry/x:surname", m_XmlNamespaceManager);
-        	surname = node.InnerText;
+        	if (node != null)
+        		surname = node.InnerText;
         	node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:CreateEntry/x:firstname", m_XmlNamespaceManager);
-        	firstname = node.InnerText;
+        	if (node != null)
+        		firstname = node.InnerText;
         	node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:CreateEntry/x:phone", m_XmlNamespaceManager);
-        	phone = node.InnerText;
+        	if (node != null)
+        		phone = node.InnerText;
         	node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:CreateEntry/x:address", m_XmlNamespaceManager);
         	if (node != null)
         		address = node.InnerText;
         	PhonebookEntry entry = new PhonebookEntry(surname, firstname, phone, address);
-        	m_Phonebook.AddEntry(entry);
+      		m_Phonebook.AddEntry(entry);
         	bool saved = m_Phonebook.Save(out error);
         	if (!saved)
         		return new ServiceResponse(ResponseStatus.Failure, "Phonebook not saved: " + error, "");
@@ -215,23 +221,26 @@ namespace Phonebook
         	bool saved = m_Phonebook.Save(out error);
         	if (!saved)
         		return new ServiceResponse(ResponseStatus.Failure, "Phonebook not saved: " + error, "");        	
-        	if (entryPresent)        	
-        		return new ServiceResponse(ResponseStatus.Success, "Entry removed successfully", "");
+        	if (!entryPresent)        	
+        		return new ServiceResponse(ResponseStatus.Success, "Entry did not exist", "");
         		
-        	return new ServiceResponse(ResponseStatus.Success, "Entry did not exist", "");
+        	return new ServiceResponse(ResponseStatus.Success, "Entry removed successfully", "");        		
         }
 
         private ServiceResponse UpdateEntry()
         {
-        	string id, surname, firstname, phone, address = "", error;
+        	string id, surname = "", firstname = "", phone = "", address = "", error;
         	XmlNode node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:UpdateEntry/x:id", m_XmlNamespaceManager);
-        	id = node.InnerText;
+       		id = node.InnerText;
         	node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:UpdateEntry/x:surname", m_XmlNamespaceManager);
-        	surname = node.InnerText;
+        	if (node != null)
+        		surname = node.InnerText;
         	node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:UpdateEntry/x:firstname", m_XmlNamespaceManager);
-        	firstname = node.InnerText;
+        	if (node != null)
+        		firstname = node.InnerText;
         	node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:UpdateEntry/x:phone", m_XmlNamespaceManager);
-        	phone = node.InnerText;
+        	if (node != null)
+        		phone = node.InnerText;
         	node = m_InputXml.SelectSingleNode("//x:ServiceRequest/x:Payload/x:UpdateEntry/x:address", m_XmlNamespaceManager);
         	if (node != null)
         		address = node.InnerText;   	   
@@ -240,10 +249,10 @@ namespace Phonebook
         	bool saved = m_Phonebook.Save(out error);
         	if (!saved)
 				return new ServiceResponse(ResponseStatus.Failure, "Phonebook not saved: " + error, "");        		        	
-        	if (entryPresent)
-        		return new ServiceResponse(ResponseStatus.Success, "Entry updated successfully", "");
-        		
-       		return new ServiceResponse(ResponseStatus.Failure, "Entry does not exist", "");
+        	if (!entryPresent)
+        		return new ServiceResponse(ResponseStatus.Failure, "Entry does not exist", "");
+        	
+        	return new ServiceResponse(ResponseStatus.Success, "Entry updated successfully", "");        		
         }        
     }
     
@@ -252,24 +261,24 @@ namespace Phonebook
         static void Main(string[] args)
         {
             WebServiceHost host = new WebServiceHost(typeof(PhonebookService), new Uri("http://localhost:8000/"));
-            ServiceEndpoint ep = host.AddServiceEndpoint(typeof(IPhonebookService), new WebHttpBinding(), "");
+            ServiceEndpoint endpoint = host.AddServiceEndpoint(typeof(IPhonebookService), new WebHttpBinding(), "");
             host.Open();
             
             /* Send request and receive response in code
-            using (ChannelFactory<IPhonebookService> cf = new ChannelFactory<IPhonebookService>(new WebHttpBinding(), "http://localhost:8000"))
+            using (ChannelFactory<IPhonebookService> channelFactory = new ChannelFactory<IPhonebookService>(new WebHttpBinding(), "http://localhost:8000"))
             {
-                cf.Endpoint.Behaviors.Add(new WebHttpBehavior());                              
-                IPhonebookService channel = cf.CreateChannel();
+                channelFactory.Endpoint.Behaviors.Add(new WebHttpBehavior());                              
+                IPhonebookService channel = channelFactory.CreateChannel();
                 
                 string request, response;                
                 // List all entries
                 //request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>ListEntries</MessageType></Header><Payload><ListEntries/></Payload></ServiceRequest>";             
                 // List entries by surname
-                //request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>ListEntries</MessageType></Header><Payload><ListEntries><surname>Willcox</surname></ListEntries></Payload></ServiceRequest>";                
+                //request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>ListEntries</MessageType></Header><Payload><ListEntries><surname>Brown</surname></ListEntries></Payload></ServiceRequest>";                
                 // Create Entry
-                //request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>CreateEntry</MessageType></Header><Payload><CreateEntry><surname>Willcox</surname><firstname>John</firstname><phone>+44 207 184 8309</phone><address>1 London Wall</address></CreateEntry></Payload></ServiceRequest>";
+                //request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>CreateEntry</MessageType></Header><Payload><CreateEntry><surname>Smith</surname><firstname>John</firstname><phone>+44 207 184 8309</phone></CreateEntry></Payload></ServiceRequest>";
                 // Update Entry
-                //request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>UpdateEntry</MessageType></Header><Payload><UpdateEntry><id>E6209833-C5FD-4B67-AFB9-E1A02E2AD8D8</id><surname>Brown</surname><firstname>John</firstname><phone>+44 207 184 8309</phone><address>1 London Wall</address></UpdateEntry></Payload></ServiceRequest>";
+                //request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>UpdateEntry</MessageType></Header><Payload><UpdateEntry><id>A13D9BF5-49E9-423D-BFC5-FF6F86FD11C8</id><surname>Brown</surname><firstname>John</firstname><phone>+44 207 184 8309</phone><address>1 London Wall</address></UpdateEntry></Payload></ServiceRequest>";
 				// Remove Entry
 				//request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ServiceRequest xmlns=\"http://www.phonebook.com/ServiceRequest\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Header><MessageID>1</MessageID><MessageType>RemoveEntry</MessageType></Header><Payload><RemoveEntry><id>E6209833-C5FD-4B67-AFB9-E1A02E2AD8D8</id></RemoveEntry></Payload></ServiceRequest>";
                 	
@@ -277,11 +286,10 @@ namespace Phonebook
                 
                 Console.WriteLine("Request:{0}\n\nResponse:{1}\n", request, response);
             }
-            */
                
-           	// Or navigate to this address in browser
+           	// Or navigate here
            	// http://localhost:8000/SubmitServiceRequest?inputXml=%3C?xml%20version=%221.0%22%20encoding=%22UTF-8%22?%3E%3CServiceRequest%20xmlns=%22http://www.phonebook.com/ServiceRequest%22%20xmlns:xsi=%22http://www.w3.org/2001/XMLSchema-instance%22%3E%3CHeader%3E%3CMessageID%3E1%3C/MessageID%3E%3CMessageType%3EListEntries%3C/MessageType%3E%3C/Header%3E%3CPayload%3E%3CListEntries/%3E%3C/Payload%3E%3C/ServiceRequest%3E
-
+			*/
             Console.WriteLine("Listening...");
             Console.ReadLine();
 
