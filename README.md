@@ -1,6 +1,4 @@
 # Phonebook
-Cloud Fabric Services Joining Exercise
-
 Functionality:
 * ListEntries - List all entries in the phone book or those that match on a specific surname
 * CreateEntry - Create a new entry to the phone book
