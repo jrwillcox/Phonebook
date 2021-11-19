@@ -1,6 +1,0 @@
-C:\Users\Administrator.AUK-LT1\Documents\SharpDevelop Projects\Phonebook\Phonebook\bin\Debug\Phonebook.exe.config
-C:\Users\Administrator.AUK-LT1\Documents\SharpDevelop Projects\Phonebook\Phonebook\bin\Debug\Phonebook.exe
-C:\Users\Administrator.AUK-LT1\Documents\SharpDevelop Projects\Phonebook\Phonebook\bin\Debug\Phonebook.pdb
-C:\Users\Administrator.AUK-LT1\Documents\SharpDevelop Projects\Phonebook\Phonebook\obj\Debug\Phonebook.exe
-C:\Users\Administrator.AUK-LT1\Documents\SharpDevelop Projects\Phonebook\Phonebook\obj\Debug\Phonebook.pdb
-C:\Users\Administrator.AUK-LT1\Documents\SharpDevelop Projects\Phonebook\Phonebook\obj\Debug\Phonebook.csprojResolveAssemblyReference.cache
